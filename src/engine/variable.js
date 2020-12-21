@@ -30,7 +30,9 @@ class Variable {
             this.value = this.name;
             break;
         default:
-            throw new Error(`Invalid variable type: ${this.type}`);
+            this.value = this.name;
+            break;
+//            throw new Error(`Invalid variable type: ${this.type}`);
         }
     }
 

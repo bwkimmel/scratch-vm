@@ -101,6 +101,9 @@ const ArgumentTypeMap = (() => {
         // They are more analagous to the label on a block.
         fieldType: 'field_image'
     };
+    map[ArgumentType.VARIABLE] = {
+        fieldType: 'field_variable'
+    };
     return map;
 })();
 
@@ -904,7 +907,7 @@ class Runtime extends EventEmitter {
 
         for (const blockInfo of extensionInfo.blocks) {
             try {
-                const convertedBlock = this._convertForScratchBlocks(blockInfo, categoryInfo);
+                const convertedBlock = this._convertForScratchBlocks(blockInfo, categoryInfo, extensionInfo);
                 categoryInfo.blocks.push(convertedBlock);
                 if (convertedBlock.json) {
                     const opcode = convertedBlock.json.type;
@@ -1042,7 +1045,7 @@ class Runtime extends EventEmitter {
      * @returns {ConvertedBlockInfo} - the converted & original block information
      * @private
      */
-    _convertForScratchBlocks (blockInfo, categoryInfo) {
+    _convertForScratchBlocks (blockInfo, categoryInfo, extensionInfo) {
         if (blockInfo === '---') {
             return this._convertSeparatorForScratchBlocks(blockInfo);
         }
@@ -1051,7 +1054,7 @@ class Runtime extends EventEmitter {
             return this._convertButtonForScratchBlocks(blockInfo);
         }
 
-        return this._convertBlockForScratchBlocks(blockInfo, categoryInfo);
+        return this._convertBlockForScratchBlocks(blockInfo, categoryInfo, extensionInfo);
     }
 
     /**
@@ -1061,7 +1064,7 @@ class Runtime extends EventEmitter {
      * @returns {ConvertedBlockInfo} - the converted & original block information
      * @private
      */
-    _convertBlockForScratchBlocks (blockInfo, categoryInfo) {
+    _convertBlockForScratchBlocks (blockInfo, categoryInfo, extensionInfo) {
         const extendedOpcode = `${categoryInfo.id}_${blockInfo.opcode}`;
 
         const blockJSON = {
@@ -1079,6 +1082,7 @@ class Runtime extends EventEmitter {
             // below, but each `[ARG]` will need to be replaced with the number in this map.
             argsMap: {},
             blockJSON,
+            extensionInfo,
             categoryInfo,
             blockInfo,
             inputList: []
@@ -1265,6 +1269,18 @@ class Runtime extends EventEmitter {
         };
     }
 
+    _constructVariableJson (context, argInfo) {
+        let varTypes;
+        if (argInfo.variableType) {
+          varTypes = [`${context.extensionInfo.id}_${argInfo.variableType}`];
+        }
+        return {
+            type: 'field_variable',
+            variableTypes: varTypes,
+            variable: argInfo.defaultValue
+        };
+    }
+
     /**
      * Helper for _convertForScratchBlocks which handles linearization of argument placeholders. Called as a callback
      * from string#replace. In addition to the return value the JSON and XML items in the context will be filled.
@@ -1295,6 +1311,8 @@ class Runtime extends EventEmitter {
         // check if this is not one of those cases. E.g. an inline image on a block.
         if (argTypeInfo.fieldType === 'field_image') {
             argJSON = this._constructInlineImageJson(argInfo);
+        } else if (argTypeInfo.fieldType === 'field_variable') {
+            argJSON = this._constructVariableJson(context, argInfo);
         } else {
             // Construct input value
 
