@@ -542,15 +542,14 @@ class ArduinoBlocks {
   }
 
   _updateCapabilities () {
-    this.rpc('get_capabilities', []).then(result => {
-      this.pin_capabilities = result;
-      this.analog_pins = [];
-      for (var i = 0; i < this.pin_capabilities.length; i++) {
-        if (this.pin_capabilities[i].hasOwnProperty('analog_input')) {
-          this.analog_pins.push(i);
-        }
-      }
-    });
+    return Promise.all([
+      this.rpc('get_capabilities', []).then(result => {
+        this.pin_capabilities = result;
+      }),
+      this.rpc('get_analog_map', []).then(result => {
+        this.analog_pins = result;
+      })
+    ]);
   }
 
   rpc (method, params) {
