@@ -2,6 +2,7 @@
 // create by scratch3-extension generator
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
+const Timer = require('../../util/timer');
 const log = require('../../util/log');
 const formatMessage = require('format-message');
 
@@ -27,6 +28,8 @@ class Arduino {
     this.stepper_attached = false;
 
     this.default_tempo = 60;
+
+    this._updateCapabilities();
   }
 
   debug (obj) {
@@ -80,10 +83,13 @@ class Arduino {
       blockIconURI: blockIconURI,
       showStatusButton: true,
       menus: {
-        digitalState: [
-          {'value': 0, 'text': 'LOW'},
-          {'value': 1, 'text': 'HIGH'}
-        ],
+        digitalState: {
+          acceptReporters: true,
+          items: [
+            {'value': 0, 'text': 'LOW'},
+            {'value': 1, 'text': 'HIGH'}
+          ]
+        },
         dhtType: [
           {'value': 11, 'text': 'DHT11'},
           {'value': 12, 'text': 'DHT12'},
@@ -124,6 +130,7 @@ class Arduino {
           },
           text: 'digital write [NAME] to [VALUE]'
         },
+        '---',
         {
           opcode: 'attachDigitalInput',
           blockType: BlockType.COMMAND,
@@ -156,6 +163,7 @@ class Arduino {
           },
           text: 'digital input [NAME] is [VALUE]'
         },
+        '---',
         {
           opcode: 'attachPWMOutput',
           blockType: BlockType.COMMAND,
@@ -186,6 +194,7 @@ class Arduino {
           },
           text: 'PWM write [NAME] to [VALUE]'
         },
+        '---',
         {
           opcode: 'attachAnalogInput',
           blockType: BlockType.COMMAND,
@@ -226,7 +235,7 @@ class Arduino {
             TYPE: {
               type: ArgumentType.NUMBER,
               menu: 'dhtType',
-              defaultValue: 'DHT11'
+              defaultValue: 11
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -532,19 +541,50 @@ class Arduino {
     }
   }
 
-  send_rpc (method, params) {
-    const http = new XMLHttpRequest();
-    const url = 'http://localhost:4000';
-    http.open('POST', url, true);
-    http.setRequestHeader('Content-Type', 'application/json');
-    http.setRequestHeader('Accept', 'application/json');
-    http.send(JSON.stringify({
-      jsonrpc: '2.0',
-      id:      1,
-      method:  method,
-      params:  params
-    }));
+  _updateCapabilities () {
+    this.pin_capabilities = this.rpc('get_capabilities', []);
+    this.analog_pins = [];
+    for (var i = 0; i < this.pin_capabilities.length; i++) {
+      if (this.pin_capabilities[i].hasOwnProperty('analog_input')) {
+        this.analog_pins.push(i);
+      }
+    }
   }
+
+    /**
+     * Check if the stack timer needs initialization.
+     * @param {object} util - utility object provided by the runtime.
+     * @return {boolean} - true if the stack timer needs to be initialized.
+     * @private
+     */
+    _stackTimerNeedsInit (util) {
+        return !util.stackFrame.timer;
+    }
+
+    /**
+     * Start the stack timer and the yield the thread if necessary.
+     * @param {object} util - utility object provided by the runtime.
+     * @param {number} duration - a duration in seconds to set the timer for.
+     * @private
+     */
+    _startStackTimer (util, duration) {
+        util.stackFrame.timer = new Timer();
+        util.stackFrame.timer.start();
+        util.stackFrame.duration = duration;
+        util.yield();
+    }
+
+    /**
+     * Check the stack timer, and if its time is not up yet, yield the thread.
+     * @param {object} util - utility object provided by the runtime.
+     * @private
+     */
+    _checkStackTimer (util) {
+        const timeElapsed = util.stackFrame.timer.timeElapsed();
+        if (timeElapsed < util.stackFrame.duration * 1000) {
+            util.yield();
+        }
+    }
 
   rpc (method, params) {
     const http = new XMLHttpRequest();
@@ -552,18 +592,30 @@ class Arduino {
     http.open('POST', url, false);
     http.setRequestHeader('Content-Type', 'application/json');
     http.setRequestHeader('Accept', 'application/json');
-    http.send(JSON.stringify({
+    let req = JSON.stringify({
       jsonrpc: '2.0',
       id:      1,
       method:  method,
       params:  params
-    }));
+    });
+    //console.log('request: ' + req);
+    http.send(req);
+    //console.log('response: ' + http.responseText);
     return JSON.parse(http.responseText).result;
   }
 
   attachDigitalOutput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
+
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('digital_output')) {
+      log.warn(`Pin ${PIN} does not support digital output mode`);
+      return;
+    }
 
     this.digital_outputs[NAME] = PIN;
     this.rpc('set_pin_mode_digital_output', [PIN]);
@@ -573,6 +625,15 @@ class Arduino {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
 
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('digital_input')) {
+      log.warn(`Pin ${PIN} does not support digital input mode`);
+      return;
+    }
+
     this.digital_inputs[NAME] = PIN;
     this.rpc('set_pin_mode_digital_input', [PIN]);
   }
@@ -580,6 +641,15 @@ class Arduino {
   attachPWMOutput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
+
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('pwm')) {
+      log.warn(`Pin ${PIN} does not support PWM mode`);
+      return;
+    }
 
     this.pwm_outputs[NAME] = PIN;
     this.rpc('set_pin_mode_pwm_output', [PIN]);
@@ -589,6 +659,11 @@ class Arduino {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
 
+    if (PIN < 0 || PIN >= this.analog_pins.length) {
+      log.warn(`Pin A${PIN} does not exist`);
+      return;
+    }
+
     this.analog_inputs[NAME] = PIN;
     this.rpc('set_pin_mode_analog_input', [PIN]);
   }
@@ -597,6 +672,15 @@ class Arduino {
     const NAME = args.NAME;
     const TYPE = Number(args.TYPE);
     const PIN = Number(args.PIN);
+
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('dht')) {
+      log.warn(`Pin ${PIN} does not support DHT mode`);
+      return;
+    }
 
     this.dhts[NAME] = PIN;
     this.rpc('set_pin_mode_dht', [PIN, TYPE]);
@@ -608,6 +692,15 @@ class Arduino {
     const MIN_PULSE = Number(args.MIN_PULSE);
     const MAX_PULSE = Number(args.MAX_PULSE);
 
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('servo')) {
+      log.warn(`Pin ${PIN} does not support servo mode`);
+      return;
+    }
+
     this.servos[NAME] = PIN;
     this.rpc('set_pin_mode_servo', [PIN, MIN_PULSE, MAX_PULSE]);
   }
@@ -617,17 +710,21 @@ class Arduino {
     const TRIGGER_PIN = Number(args.TRIGGER_PIN);
     const ECHO_PIN = Number(args.ECHO_PIN);
 
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[TRIGGER_PIN].hasOwnProperty('sonar')) {
+      log.warn(`Pin ${PIN} does not support sonar mode`);
+      return;
+    }
+    if (!this.pin_capabilities[ECHO_PIN].hasOwnProperty('sonar')) {
+      log.warn(`Pin ${PIN} does not support sonar mode`);
+      return;
+    }
+
     this.sonars[NAME] = TRIGGER_PIN;
-  }
-
-  attachServo (args, util) {
-    const NAME = args.NAME;
-    const PIN = Number(args.PIN);
-    const MIN_PULSE = Number(args.MIN_PULSE);
-    const MAX_PULSE = Number(args.MAX_PULSE);
-
-    this.servos[NAME] = PIN;
-    this.rpc('set_pin_mode_servo', [PIN, MIN_PULSE, MAX_PULSE]);
+    this.rpc('set_pin_mode_sonar', [TRIGGER_PIN, ECHO_PIN]);
   }
 
   attachStepper (args, util) {
@@ -643,6 +740,21 @@ class Arduino {
       pins.push(PIN4);
     }
 
+    let ok = true;
+    for (var i = 0; i < pins.length; i++) {
+      let pin = pins[i];
+      if (pin < 0 || pin >= this.pin_capabilities.length) {
+        log.warn(`Pin ${pin} does not exist`);
+        ok = false;
+        continue;
+      }
+      if (!this.pin_capabilities[pin].hasOwnProperty('servo')) {
+        log.warn(`Pin ${pin} does not support servo mode`);
+        ok = false;
+        continue;
+      }
+    }
+
     for (var i = 0; i < pins.length - 1; i++) {
       for (var j = i + 1; j < pins.length; j++) {
         if (pins[i] == pins[j]) {
@@ -652,6 +764,10 @@ class Arduino {
       }
     }
 
+    if (!ok) {
+      return;
+    }
+
     this.rpc('set_pin_mode_stepper', [STEPS_PER_REVOLUTION, pins]);
     this.stepper_attached = true;
   }
@@ -659,6 +775,15 @@ class Arduino {
   attachTone (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
+
+    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
+      log.warn(`Pin ${PIN} does not exist`);
+      return;
+    }
+    if (!this.pin_capabilities[PIN].hasOwnProperty('tone')) {
+      log.warn(`Pin ${PIN} does not support tone mode`);
+      return;
+    }
 
     this.tones[NAME] = PIN;
     this.rpc('set_pin_mode_tone', [PIN]);
@@ -694,7 +819,8 @@ class Arduino {
       log.warn(`PWM output '${NAME}' is not attached`);
       return;
     }
-    this.rpc('pwm_write', [pin, VALUE]);
+    let max = (1 << this.pin_capabilities[pin].pwm) - 1;
+    this.rpc('pwm_write', [pin, Math.round(VALUE * max)]);
   }
 
   analogRead (args, util) {
@@ -704,7 +830,9 @@ class Arduino {
       log.warn(`Analog input '${NAME}' is not attached`);
       return 0;
     }
-    return this.rpc('analog_read', [PIN]);
+    let max = (1 << this.pin_capabilities[this.analog_pins[pin]].analog_input) - 1;
+    let value = this.rpc('analog_read', [pin]);
+    return value / max;
   }
 
   dhtRead (args, util) {
@@ -722,7 +850,7 @@ class Arduino {
   }
 
   dhtReadHumidity (args, util) {
-    return this.dhtRead(args, util).temperature;
+    return this.dhtRead(args, util).humidity;
   }
 
   sonarRead (args, util) {
@@ -736,35 +864,47 @@ class Arduino {
   }
 
   playTone (args, util) {
-    const NAME = args.NAME;
-    const FREQUENCY = Number(args.FREQUENCY);
-    const DURATION = Number(args.DURATION);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
+    if (this._stackTimerNeedsInit(util)) {
+      const NAME = args.NAME;
+      const FREQUENCY = Number(args.FREQUENCY);
+      const DURATION = Number(args.DURATION);
+      let pin = this.tones[NAME];
+      if (typeof pin === 'undefined') {
+        log.warn(`Tone device '${NAME}' is not attached`);
+        return;
+      }
+      this.rpc('play_tone', [pin, FREQUENCY, DURATION * 1000]);
+      this._startStackTimer(util, DURATION);
+    } else {
+      this._checkStackTimer(util);
     }
-    this.rpc('play_tone', [pin, FREQUENCY, DURATION * 1000]);
   }
 
   noteFrequency (note) {
-    return Math.pow(2, (note - 9) / 12) * 440;
+    return Math.round(Math.pow(2, (note - 9) / 12) * 440);
   }
 
-  beatsDuration (beats) {
-    return 1000 * (beats * (60 / this.default_tempo));
+  beatsToSeconds (beats) {
+    return beats * (60 / this.default_tempo);
   }
 
   playNote (args, util) {
-    const NAME = args.NAME;
-    const NOTE = Number(args.NOTE);
-    const BEATS = Number(args.DURATION);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
+    if (this._stackTimerNeedsInit(util)) {
+      const NAME = args.NAME;
+      const NOTE = Number(args.NOTE);
+      const BEATS = Number(args.BEATS);
+      let pin = this.tones[NAME];
+      if (typeof pin === 'undefined') {
+        log.warn(`Tone device '${NAME}' is not attached`);
+        return;
+      }
+      let frequency = this.noteFrequency(NOTE);
+      let seconds = this.beatsToSeconds(BEATS);
+      this.rpc('play_tone', [pin, frequency, Math.round(1000 * seconds)]);
+      this._startStackTimer(util, seconds);
+    } else {
+      this._checkStackTimer(util);
     }
-    this.rpc('play_tone', [pin, noteFrequency(NOTE), beatsDuration(BEATS)]);
   }
 
   startTone (args, util) {
@@ -776,19 +916,19 @@ class Arduino {
       log.warn(`Tone device '${NAME}' is not attached`);
       return;
     }
-    this.send_rpc('play_tone', [pin, FREQUENCY, DURATION * 1000]);
+    this.rpc('play_tone', [pin, FREQUENCY, DURATION * 1000]);
   }
 
   startNote (args, util) {
     const NAME = args.NAME;
     const NOTE = Number(args.NOTE);
-    const BEATS = Number(args.DURATION);
+    const BEATS = Number(args.BEATS);
     let pin = this.tones[NAME];
     if (typeof pin === 'undefined') {
       log.warn(`Tone device '${NAME}' is not attached`);
       return;
     }
-    this.send_rpc('play_tone', [pin, noteFrequency(NOTE), beatsDuration(BEATS)]);
+    this.rpc('play_tone', [pin, this.noteFrequency(NOTE), this.beatsDuration(BEATS)]);
   }
 
   startToneContinuously (args, util) {
@@ -810,7 +950,7 @@ class Arduino {
       log.warn(`Tone device '${NAME}' is not attached`);
       return;
     }
-    this.rpc('play_tone_continuously', [pin, noteFrequency(NOTE)]);
+    this.rpc('play_tone_continuously', [pin, this.noteFrequency(NOTE)]);
   }
 
   stopTone (args, util) {
@@ -820,7 +960,7 @@ class Arduino {
       log.warn(`Tone device '${NAME}' is not attached`);
       return;
     }
-    this.rpc('stop_tone', [pin]);
+    this.rpc('play_tone_off', [pin]);
   }
 
   servoWrite (args, util) {
