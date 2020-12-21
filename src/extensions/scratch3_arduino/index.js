@@ -11,10 +11,8 @@ const blockIconURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYA
 
 class ArduinoBlocks {
   constructor (runtime) {
-    this.outputs = ['New output'];
     this.runtime = runtime;
     this.runtime.registerPeripheralExtension('arduino', this);
-    this.comm = runtime.ioDevices.comm;
 
     this.digital_outputs = {};
     this.digital_inputs = {};
