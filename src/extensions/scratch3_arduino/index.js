@@ -256,8 +256,6 @@ class ArduinoBlocks {
     this._runtime.registerPeripheralExtension('arduino', this);
 
     this._arduino = new Arduino();
-
-    this._default_tempo = 60;
   }
 
   scan () {
@@ -870,7 +868,12 @@ class ArduinoBlocks {
   }
 
   _beatsToSeconds (beats) {
-    return beats * (60 / this._default_tempo);
+    let tempo = 60;
+    const stage = this._runtime.getTargetForStage();
+    if (stage && stage.hasOwnProperty('tempo')) {
+      tempo = stage.tempo;
+    }
+    return beats * (60 / tempo);
   }
 
   playNote (args, util) {
