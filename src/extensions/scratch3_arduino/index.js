@@ -28,19 +28,21 @@ class Arduino {
     this.tones = {};
 
     this.stepper_attached = false;
-
-    this._updateCapabilities();
   }
 
-  _updateCapabilities () {
-    return Promise.all([
+  connect () {
+    return this._rpc('connect', []).then(() => {
       this._rpc('get_capabilities', []).then(result => {
         this.pin_capabilities = result;
       }),
       this._rpc('get_analog_map', []).then(result => {
         this.analog_pins = result;
       })
-    ]);
+    });
+  }
+
+  disconnect () {
+    return this._rpc('disconnect', []);
   }
 
   _rpc (method, params) {
@@ -255,25 +257,52 @@ class ArduinoBlocks {
     this._runtime = runtime;
     this._runtime.registerPeripheralExtension('arduino', this);
 
-    this._arduino = new Arduino();
+    this._arduino_ = null;
+    this._connected = false;
+  }
+
+  get _arduino () {
+    if (!this._connected) {
+      throw 'arduino not connected'
+    }
+    return this._arduino_;
   }
 
   scan () {
-    console.log('scan');
+    this.disconnect();
+    let arduino = new Arduino();
+    return arduino.connect().then(() => {
+      this._arduino_ = arduino;
+      this._runtime.emit(
+          this._runtime.constructor.PERIPHERAL_LIST_UPDATE,
+          {'arduino': {}})
+    }).catch(e => {
+      log.error(`Arduino error: ${JSON.stringify(e)}`);
+      this._runtime.emit(this._runtime.constructor.PERIPHERAL_REQUEST_ERROR, {
+        message: 'Scratch lost connection to',
+        extensionId: 'arduino'
+      });
+    });
   }
 
   connect (id) {
-    console.log('connect ' + id);
+    if (!this._arduino_) {
+      throw 'no device found to connect to';
+    }
+    this._connected = true;
+    this._runtime.emit(this._runtime.constructor.PERIPHERAL_CONNECTED);
   }
 
   disconnect () {
-    console.log('disconnect');
-    this._runtime.emit(this._runtime.constructor.PERIPHERAL_DISCONNECTED);
+    if (this._connected) {
+      this._connected = false;
+      return this._arduino_.disconnect().then(() =>
+          this._runtime.emit(this._runtime.constructor.PERIPHERAL_DISCONNECTED));
+    }
   }
 
   isConnected () {
-    console.log('isConnected');
-    return false;
+    return this._connected;
   }
 
   getInfo () {
