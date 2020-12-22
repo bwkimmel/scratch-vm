@@ -3,6 +3,7 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
+const JSONRPC = require('../../util/jsonrpc');
 const Timer = require('../../util/timer');
 const log = require('../../util/log');
 const formatMessage = require('format-message');
@@ -16,8 +17,10 @@ function _do (f) {
 }
 
 
-class Arduino {
+class Arduino extends JSONRPC {
   constructor () {
+    super();
+
     this.digital_outputs = {};
     this.digital_inputs = {};
     this.pwm_outputs = {};
@@ -31,64 +34,42 @@ class Arduino {
   }
 
   connect () {
-    return this._rpc('connect', []).then(() => {
-      this._rpc('get_capabilities', []).then(result => {
+    return this.sendRemoteRequest('connect', []).then(() => {
+      this.sendRemoteRequest('get_capabilities', []).then(result => {
         this.pin_capabilities = result;
       }),
-      this._rpc('get_analog_map', []).then(result => {
+      this.sendRemoteRequest('get_analog_map', []).then(result => {
         this.analog_pins = result;
       })
     });
   }
 
   disconnect () {
-    return this._rpc('disconnect', []);
+    return this.sendRemoteRequest('disconnect', []);
   }
 
-  _rpc (method, params) {
+  didReceiveCall (method, params) {
+    console.log(`Received call ${message} with params ${JSON.stringify(params)}`);
+  }
+
+  _sendMessage (message) {
+    const handleResponse = this._handleMessage.bind(this);
     const xhr = new XMLHttpRequest();
     const url = 'http://localhost:4000';
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Accept', 'application/json');
-    let req = JSON.stringify({
-      jsonrpc: '2.0',
-      id:      1,
-      method:  method,
-      params:  params
-    });
+    xhr.onload = function (e) {
+      if (xhr.readyState !== 4) {
+        return;
+      }
+      if (xhr.status !== 200) {
+        throw `RPC returned status code ${xhr.status}`;
+      }
+      handleResponse(JSON.parse(xhr.responseText));
+    };
 
-    return new Promise((resolve, reject) => {
-      xhr.onload = function (e) {
-        if (xhr.readyState !== 4) {
-          return;
-        }
-        if (xhr.status !== 200) {
-          reject(`RPC returned status code ${xhr.status}`);
-          return;
-        }
-        try {
-          let resp = JSON.parse(xhr.responseText);
-          if (resp.hasOwnProperty('error')) {
-            reject(resp.error);
-            return;
-          }
-          if (!resp.hasOwnProperty('result')) {
-            reject('invalid RPC response: missing result');
-            return;
-          }
-          if (resp.result === null) {
-            resolve();
-          } else {
-            resolve(resp.result);
-          }
-        } catch (e) {
-          reject(`error parsing RPC response: ${e}`);
-          return;
-        }
-      };
-      xhr.send(req);
-    });
+    xhr.send(JSON.stringify(message));
   }
 
   _checkPin (pin, type) {
@@ -103,19 +84,19 @@ class Arduino {
   attachDigitalOutput (name, pin) {
     this._checkPin(pin, 'digital_output');
     this.digital_outputs[name] = pin;
-    return this._rpc('set_pin_mode_digital_output', [pin]);
+    return this.sendRemoteRequest('set_pin_mode_digital_output', [pin]).then(() => {});
   }
 
   attachDigitalInput (name, pin) {
     this._checkPin(pin, 'digital_input');
     this.digital_inputs[name] = pin;
-    return this._rpc('set_pin_mode_digital_input', [pin]);
+    return this.sendRemoteRequest('set_pin_mode_digital_input', [pin]).then(() => {});
   }
 
   attachPWMOutput (name, pin) {
     this._checkPin(pin, 'pwm');
     this.pwm_outputs[name] = pin;
-    return this._rpc('set_pin_mode_pwm_output', [pin]);
+    return this.sendRemoteRequest('set_pin_mode_pwm_output', [pin]).then(() => {});
   }
 
   attachAnalogInput (name, pin) {
@@ -124,26 +105,26 @@ class Arduino {
     }
 
     this.analog_inputs[name] = pin;
-    return this._rpc('set_pin_mode_analog_input', [pin]);
+    return this.sendRemoteRequest('set_pin_mode_analog_input', [pin]).then(() => {});
   }
 
   attachDHT (name, pin, type) {
     this._checkPin(pin, 'dht');
     this.dhts[name] = pin;
-    return this._rpc('set_pin_mode_dht', [pin, type]);
+    return this.sendRemoteRequest('set_pin_mode_dht', [pin, type]).then(() => {});
   }
 
   attachServo (name, pin, min_pulse, max_pulse) {
     this._checkPin(pin, 'servo');
     this.servos[name] = pin;
-    return this._rpc('set_pin_mode_servo', [pin, min_pulse, max_pulse]);
+    return this.sendRemoteRequest('set_pin_mode_servo', [pin, min_pulse, max_pulse]).then(() => {});
   }
 
   attachSonar (name, trigger_pin, echo_pin) {
     this._checkPin(trigger_pin, 'sonar');
     this._checkPin(echo_pin, 'sonar');
     this.sonars[name] = trigger_pin;
-    return this._rpc('set_pin_mode_sonar', [trigger_pin, echo_pin]);
+    return this.sendRemoteRequest('set_pin_mode_sonar', [trigger_pin, echo_pin]).then(() => {});
   }
 
   attachStepper (steps_per_revolution, pins) {
@@ -152,13 +133,13 @@ class Arduino {
     }
 
     this.stepper_attached = true;
-    return this._rpc('set_pin_mode_stepper', [steps_per_revolution, pins]);
+    return this.sendRemoteRequest('set_pin_mode_stepper', [steps_per_revolution, pins]).then(() => {});
   }
 
   attachTone (name, pin) {
     this._checkPin(pin, 'tone');
     this.tones[name] = pin;
-    return this._rpc('set_pin_mode_tone', [pin]);
+    return this.sendRemoteRequest('set_pin_mode_tone', [pin]).then(() => {});
   }
 
   digitalWrite (name, value) {
@@ -166,7 +147,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Digital output '${name}' is not attached`;
     }
-    return this._rpc('digital_write', [pin, value]);
+    return this.sendRemoteRequest('digital_write', [pin, value]).then(() => {});
   }
 
   digitalRead (name) {
@@ -174,7 +155,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Digital input '${name}' is not attached`;
     }
-    return this._rpc('digital_read', [pin]);
+    return this.sendRemoteRequest('digital_read', [pin]);
   }
 
   analogWrite (name, value) {
@@ -183,7 +164,7 @@ class Arduino {
       throw `PWM output '${name}' is not attached`;
     }
     let max = (1 << this.pin_capabilities[pin].pwm) - 1;
-    return this._rpc('pwm_write', [pin, Math.round(value * max)]);
+    return this.sendRemoteRequest('pwm_write', [pin, Math.round(value * max)]).then(() => {});
   }
 
   analogRead (name) {
@@ -192,7 +173,7 @@ class Arduino {
       throw `Analog input '${name}' is not attached`;
     }
     let max = (1 << this.pin_capabilities[this.analog_pins[pin]].analog_input) - 1;
-    return this._rpc('analog_read', [pin]).then(x => x / max);
+    return this.sendRemoteRequest('analog_read', [pin]).then(x => x / max);
   }
 
   dhtRead (name) {
@@ -200,7 +181,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `DHT '${name}' is not attached`;
     }
-    return this._rpc('dht_read', [pin]);
+    return this.sendRemoteRequest('dht_read', [pin]);
   }
 
   sonarRead (name) {
@@ -208,7 +189,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Sonar '${name}' is not attached`;
     }
-    return this._rpc('sonar_read', [pin]);
+    return this.sendRemoteRequest('sonar_read', [pin]);
   }
 
   playTone (name, frequency, duration) {
@@ -216,7 +197,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Tone device '${name}' is not attached`;
     }
-    return this._rpc('play_tone', [pin, frequency, duration]);
+    return this.sendRemoteRequest('play_tone', [pin, frequency, duration]).then(() => {});
   }
 
   playToneContinuously (name, frequency) {
@@ -224,7 +205,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Tone device '${name}' is not attached`;
     }
-    return this._rpc('play_tone_continuously', [pin, frequency]);
+    return this.sendRemoteRequest('play_tone_continuously', [pin, frequency]).then(() => {});
   }
 
   playToneOff (name) {
@@ -232,7 +213,7 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Tone device '${name}' is not attached`;
     }
-    return this._rpc('play_tone_off', [pin]);
+    return this.sendRemoteRequest('play_tone_off', [pin]).then(() => {});
   }
 
   servoWrite (name, position) {
@@ -240,14 +221,14 @@ class Arduino {
     if (typeof pin === 'undefined') {
       throw `Servo '${name}' is not attached`;
     }
-    return this._rpc('servo_write', [pin, position]);
+    return this.sendRemoteRequest('servo_write', [pin, position]).then(() => {});
   }
 
   stepperWrite (speed, steps) {
     if (!this.stepper_attached) {
       throw 'Stepper motor is not attached';
     }
-    return this._rpc('stepper_write', [SPEED, STEPS]);
+    return this.sendRemoteRequest('stepper_write', [SPEED, STEPS]).then(() => {});
   }
 }
 
