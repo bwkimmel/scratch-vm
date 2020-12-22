@@ -18,8 +18,10 @@ function _do (f) {
 
 
 class Arduino extends JSONRPC {
-  constructor () {
+  constructor (runtime) {
     super();
+
+    this._runtime = runtime;
 
     this.digital_outputs = {};
     this.digital_inputs = {};
@@ -52,8 +54,17 @@ class Arduino extends JSONRPC {
     console.log(`Received call ${message} with params ${JSON.stringify(params)}`);
   }
 
+  _handleError (xhr) {
+    log.warn(`Arduino request returned status code ${xhr.status}`);
+    this._runtime.emit(this._runtime.constructor.PERIPHERAL_REQUEST_ERROR, {
+      message: 'Scratch lost connection to',
+      extensionId: 'arduino'
+    });
+  }
+
   _sendMessage (message) {
     const handleResponse = this._handleMessage.bind(this);
+    const handleError = this._handleError.bind(this);
     const xhr = new XMLHttpRequest();
     const url = 'http://localhost:4000';
     xhr.open('POST', url, true);
@@ -64,7 +75,8 @@ class Arduino extends JSONRPC {
         return;
       }
       if (xhr.status !== 200) {
-        throw `RPC returned status code ${xhr.status}`;
+        handleError(xhr);
+        return;
       }
       handleResponse(JSON.parse(xhr.responseText));
     };
@@ -251,12 +263,19 @@ class ArduinoBlocks {
 
   scan () {
     this.disconnect();
-    let arduino = new Arduino();
+    console.log('arduino: scan');
+    let arduino = new Arduino(this._runtime);
     return arduino.connect().then(() => {
       this._arduino_ = arduino;
       this._runtime.emit(
           this._runtime.constructor.PERIPHERAL_LIST_UPDATE,
-          {'arduino': {}})
+          {
+            'arduino': {
+              'key': 'arduino',
+              'name': 'Arduino device',
+              'peripheralId': 'arduino'
+            }
+          })
     }).catch(e => {
       log.error(`Arduino error: ${JSON.stringify(e)}`);
       this._runtime.emit(this._runtime.constructor.PERIPHERAL_REQUEST_ERROR, {
@@ -267,14 +286,24 @@ class ArduinoBlocks {
   }
 
   connect (id) {
+    console.log(`arduino: connect ${id}`);
     if (!this._arduino_) {
       throw 'no device found to connect to';
     }
-    this._connected = true;
-    this._runtime.emit(this._runtime.constructor.PERIPHERAL_CONNECTED);
+    return new Promise(resolve => {
+      window.setTimeout(resolve, 10);
+    }).then(() => {
+      console.log(`arduino: connected to ${id}`);
+      this._connected = true;
+      this._runtime.emit(this._runtime.constructor.PERIPHERAL_CONNECTED);
+    }).catch(e => {
+      log.warn(`Could not connect to Arduino: ${e}`);
+      this.disconnect();
+    });
   }
 
   disconnect () {
+    console.log('arduino: disconnect');
     if (this._connected) {
       this._connected = false;
       return this._arduino_.disconnect().then(() =>
