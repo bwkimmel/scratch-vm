@@ -9,11 +9,14 @@ const formatMessage = require('format-message');
 const menuIconURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAABGdBTUEAANjr9RwUqgAAACBjSFJNAACHDwAAjA0AAPmTAACE5QAAe4IAAOt1AAA/tAAAIlh1a16cAAAD8GlDQ1BJQ0MgUHJvZmlsZQAASMeNVd1v21QUP4lvXKQWP6Cxjg4Vi69VU1u5GxqtxgZJk6XpQhq5zdgqpMl1bhpT1za2021Vn/YCbwz4A4CyBx6QeEIaDMT2su0BtElTQRXVJKQ9dNpAaJP2gqpwrq9Tu13GuJGvfznndz7v0TVAx1ea45hJGWDe8l01n5GPn5iWO1YhCc9BJ/RAp6Z7TrpcLgIuxoVH1sNfIcHeNwfa6/9zdVappwMknkJsVz19HvFpgJSpO64PIN5G+fAp30Hc8TziHS4miFhheJbjLMMzHB8POFPqKGKWi6TXtSriJcT9MzH5bAzzHIK1I08t6hq6zHpRdu2aYdJYuk9Q/881bzZa8Xrx6fLmJo/iu4/VXnfH1BB/rmu5ScQvI77m+BkmfxXxvcZcJY14L0DymZp7pML5yTcW61PvIN6JuGr4halQvmjNlCa4bXJ5zj6qhpxrujeKPYMXEd+q00KR5yNAlWZzrF+Ie+uNsdC/MO4tTOZafhbroyXuR3Df08bLiHsQf+ja6gTPWVimZl7l/oUrjl8OcxDWLbNU5D6JRL2gxkDu16fGuC054OMhclsyXTOOFEL+kmMGs4i5kfNuQ62EnBuam8tzP+Q+tSqhz9SuqpZlvR1EfBiOJTSgYMMM7jpYsAEyqJCHDL4dcFFTAwNMlFDUUpQYiadhDmXteeWAw3HEmA2s15k1RmnP4RHuhBybdBOF7MfnICmSQ2SYjIBM3iRvkcMki9IRcnDTthyLz2Ld2fTzPjTQK+Mdg8y5nkZfFO+se9LQr3/09xZr+5GcaSufeAfAww60mAPx+q8u/bAr8rFCLrx7s+vqEkw8qb+p26n11Aruq6m1iJH6PbWGv1VIY25mkNE8PkaQhxfLIF7DZXx80HD/A3l2jLclYs061xNpWCfoB6WHJTjbH0mV35Q/lRXlC+W8cndbl9t2SfhU+Fb4UfhO+F74GWThknBZ+Em4InwjXIyd1ePnY/Psg3pb1TJNu15TMKWMtFt6ScpKL0ivSMXIn9QtDUlj0h7U7N48t3i8eC0GnMC91dX2sTivgloDTgUVeEGHLTizbf5Da9JLhkhh29QOs1luMcScmBXTIIt7xRFxSBxnuJWfuAd1I7jntkyd/pgKaIwVr3MgmDo2q8x6IdB5QH162mcX7ajtnHGN2bov71OU1+U0fqqoXLD0wX5ZM005UHmySz3qLtDqILDvIL+iH6jB9y2x83ok898GOPQX3lk3Itl0A+BrD6D7tUjWh3fis58BXDigN9yF8M5PJH4B8Gr79/F/XRm8m241mw/wvur4BGDj42bzn+Vmc+NL9L8GcMn8F1kAcXhLu7iPAAAACXBIWXMAAAsSAAALEgHS3X78AAAAGHRFWHRTb2Z0d2FyZQBwYWludC5uZXQgNC4wLjlsM35OAAAH10lEQVRYR9VXfWyW1RW/z1NqC2EpiCMmhaWQodMsMRnxD80cGzA7THAzW10acUxjTEDdDJV+0I/37ffXW1o+S/koH4JALR+FWZVaS2XArENgE9bJsgXU4gcFzWjLbO3Z73fee/u+bcqUzX92kpP3ee+953d+zznnnnsf838r0ytrvptYUvHspPySrQnB4vaEYNFp/J6akF/cNqmgtH5KSeXTSeXVt9vlX69Mqaoae1toxVMTg8Vn4wNF4uWXiFdcKaZsuZiKmrCWVWGsQufGYs3N+SWnbgstf+LOQOAmC/O/yfdW1T50S0HpBR/gphyOq9eIWVUnZvV6MWs2iFm7Max85tjKdWJq1ogHYjGwmVxYdu7uVWuTLdyNy0+am+NuD1VvjMsrDL/5itqI49pNYtbVj661UK4hKdiQUHxe4eAdoZXVswKBMRb+q0lKQ8P4pLLQ6xqF5avDoM553eawrt8S1g1b8Uu1/928koINbatWCbGmV1Qf4AtaN/9ZZtbVxU4prTzkBUs0xBoFR8I53rBNzEarm57HL9X+d8TqsHYdCDFCxEBKSQYv2BgIBHzr7voytSwU0kiQhKbBRsGRoONN28XU7xCzeYTWY5xzSgjqIsSXIBbJINVJ5VU51t3oAhLfj83JH2Qo9S1cKkjAvT0dbnlBzNad0F0jFGOcI0mNlI0QMRhVYoZWSlxuweeJpVV3WbcjRMSLyw7+0SvBtuSuoKFGgiQAyrclCTrbBqfP74Y2iNlulc8c49wWrNlMQjY6LjLEBDa3eXxOsNV6Hi4xy3Ln+bkF4e3JMLqa0EhEk4AzOt7xopgXGqF7IsoxJYU1SiYqMsSKTlFOvozJzL3Huo+Il5W3V5uU2yEsNoQ1EeDZb52UpvPvyaEPuqT2r+ckubVdPDretU/Mbqt45ljya+1S23lO1+4/fwG2byvGsBQxKkXl4mXl1lv3VgKBcX5mbp/WRlQ0Hj98RHr6+2U0afvwY0lselm8Fw+oJu5v1rHRhBiPtR0JE3FRCa0QPyvvkklJibEsIFm5szymhU2LjLE45dVWGQQIdXvnuzK/uUVmHXhZ0o53yHv/vKoO/nG1R6YefFWVz5QLmEs7/paupQ1tHQ4xlQh91KzV9JiMnEjR+pmBp3lGuCKNA/OLPWHgJ9veCBcr874DNQGdsHOPtH5wUec7Ll2GdutzC8YStFawbjvSwXqCLTEoXSB7k0sPjgIvWIyoBBZYGqiPzLxyr7A8XB9gfP+BZjU82nUxnFsCMs8796Ie9iMVTfIN/J799DNdRzlz5VOMoU4wZ0D0/Z5eubOpOWwLjKNdH+o6Yg/VSUEpiORmWhokkrvaK6oYKtRFyCel7MQprfzkQ21y/ONLcvwTareM3XNQvD2/kzkt7bqOMrvlsHiNB2Xivpd03cDgoJzuviw/fOU17SvEohB7iEhhGQu2yNJQIjWsYkdkYUubGq0/06lEkhr2SSp2SmrrG5J6+KjENjQpkYJ3/qLrKEXvdGLsoMQjIqmvH5He/gFJP9YhU3cjisBYf7ZT1xE7EhElErQ0WCN52QyTq5EZaEosru6+azKJfUEbGHsHcr9rr3ggkgxC/Xjrz7/4QpXP89qP6RzrIwPbdjJSRNtbgNF97ZpiztiG/qJEUCOoS+ycpywNEMnKedjj+eJ2DVrx/r/9Xd/gDx99IknMuyUyBkQWdbwtfQMDOv9cxwl57s0T+syxxeg5Y0iA61EftCUGZR8whw5RXhFw7sRkZt9vaUAyMpL87OCwrjoZ3bDz8hUF6Mcb/x49ovn9Lunq7dUxvl3hyT+jiTWq8pljlIu9fbqWNrSlEGvyRhS+6yO4XvjLAgMmM3OiZaHioaGd1RuYO+ygE9HU6v50RvqQ72g5iWKc9wp6AtOG3aOKZ45xLlr60MyIQSyHy1r0SqvEz8g5Zv1HxE/Pyea+NitterjfrfF4tPt7G5tkDrZjErcxDzOSYAq4pansHxzDucQ1XEub8a6bEsv1EKYFpeBnZEfqY0gWLr4VhXPVVK6IRIXG7CMjDz42Nzpl0yIxbXT45RjnuEavAvb0decMMYldUc3+wfaeYL0PE89bklGiRYv2G33mKBBPUb0KRN1F3HWATYvq7iTuCkAbJWHTQkxgs0j9Jenp9Bl2PVLmzk3w05e9q6cwtpeGkQD2JB52L6EzXoJ43OsvVMddJCwJVxvEYltHv/KXZp00M2eOs15HFc8s+PW9CNtVvbmTjIuMqxl3X+XbuijRsfvvUuFqwkWCJEpDLNAr5uEFPOiuE42IxPi/eiwVu+hf/GjS7xQCDUXHEYKz0TSaAG2UBIozTKLHpC6YDx9ffnm2EuunPJIKw8+09bO/sP2PJDSaRhOgDWx5piDl3eahXzwI7Bv7toHEmtmz7/OfXXpar5CMDm/2PAZY+Y5UtHKMc1xDAuwVuHN4v01709zzg7uBecMknMSYceNu9VMfzfPTMrpISCNUiW9dfnhxd/FYoPK5GmP4DtaCBAHsjPP+Lx9ZCpxvQr9yOq4nLKp4Exc3zX/w57/xnlx8yE/LuoT2DGcghq2o2xEkdWxJ5kdY0+zP/9kiEx//Ldjyy+5LC/NGhGCxUJ4N0823vzPLzPnxQv+Bnz7jPzD/GfOjuY+aaTPuw9w06AS79mslMJrQAUPNnNMhlZdgjv0Xzo35NzDzmtHyx1xdAAAAAElFTkSuQmCC";
 const blockIconURI = "data:image/png;base64,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";
 
-class ArduinoBlocks {
-  constructor (runtime) {
-    this.runtime = runtime;
-    this.runtime.registerPeripheralExtension('arduino', this);
 
+function _do (f) {
+  return Promise.resolve().then(f).catch(e => { log.warn(e); });
+}
+
+
+class Arduino {
+  constructor () {
     this.digital_outputs = {};
     this.digital_inputs = {};
     this.pwm_outputs = {};
@@ -25,32 +28,235 @@ class ArduinoBlocks {
 
     this.stepper_attached = false;
 
-    this.default_tempo = 60;
-
     this._updateCapabilities();
   }
 
-  debug (obj) {
-    console.log(Object.getOwnPropertyNames(obj).map(function (p) {
-      if (p[0] == '_') {
-        return p + ': (private)';
-      } else {
-        return p + ': ' + (typeof obj[p]);
-      }
-    }));
-    /*
-    var cache = [];
-    return JSON.stringify(obj, (key, value) => {
-      if (typeof value === 'object' && value !== null) {
-        // Duplicate reference found, discard key
-        if (cache.includes(value)) return;
-    
-        // Store value in our collection
-        cache.push(value);
-      }
-      return value;
+  _updateCapabilities () {
+    return Promise.all([
+      this._rpc('get_capabilities', []).then(result => {
+        this.pin_capabilities = result;
+      }),
+      this._rpc('get_analog_map', []).then(result => {
+        this.analog_pins = result;
+      })
+    ]);
+  }
+
+  _rpc (method, params) {
+    const xhr = new XMLHttpRequest();
+    const url = 'http://localhost:4000';
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Accept', 'application/json');
+    let req = JSON.stringify({
+      jsonrpc: '2.0',
+      id:      1,
+      method:  method,
+      params:  params
     });
-    */
+
+    return new Promise((resolve, reject) => {
+      xhr.onload = function (e) {
+        if (xhr.readyState !== 4) {
+          return;
+        }
+        if (xhr.status !== 200) {
+          reject(`RPC returned status code ${xhr.status}`);
+          return;
+        }
+        try {
+          let resp = JSON.parse(xhr.responseText);
+          if (resp.hasOwnProperty('error')) {
+            reject(resp.error);
+            return;
+          }
+          if (!resp.hasOwnProperty('result')) {
+            reject('invalid RPC response: missing result');
+            return;
+          }
+          if (resp.result === null) {
+            resolve();
+          } else {
+            resolve(resp.result);
+          }
+        } catch (e) {
+          reject(`error parsing RPC response: ${e}`);
+          return;
+        }
+      };
+      xhr.send(req);
+    });
+  }
+
+  _checkPin (pin, type) {
+    if (pin < 0 || pin >= this.pin_capabilities.length) {
+      throw `Pin ${pin} does not exist`;
+    }
+    if (!this.pin_capabilities[pin].hasOwnProperty(type)) {
+      throw `Pin ${pin} does not support mode: ${type}`;
+    }
+  }
+
+  attachDigitalOutput (name, pin) {
+    this._checkPin(pin, 'digital_output');
+    this.digital_outputs[name] = pin;
+    return this._rpc('set_pin_mode_digital_output', [pin]);
+  }
+
+  attachDigitalInput (name, pin) {
+    this._checkPin(pin, 'digital_input');
+    this.digital_inputs[name] = pin;
+    return this._rpc('set_pin_mode_digital_input', [pin]);
+  }
+
+  attachPWMOutput (name, pin) {
+    this._checkPin(pin, 'pwm');
+    this.pwm_outputs[name] = pin;
+    return this._rpc('set_pin_mode_pwm_output', [pin]);
+  }
+
+  attachAnalogInput (name, pin) {
+    if (pin < 0 || pin >= this.analog_pins.length) {
+      throw `Pin A${PIN} does not exist`;
+    }
+
+    this.analog_inputs[name] = pin;
+    return this._rpc('set_pin_mode_analog_input', [pin]);
+  }
+
+  attachDHT (name, pin, type) {
+    this._checkPin(pin, 'dht');
+    this.dhts[name] = pin;
+    return this._rpc('set_pin_mode_dht', [pin, type]);
+  }
+
+  attachServo (name, pin, min_pulse, max_pulse) {
+    this._checkPin(pin, 'servo');
+    this.servos[name] = pin;
+    return this._rpc('set_pin_mode_servo', [pin, min_pulse, max_pulse]);
+  }
+
+  attachSonar (name, trigger_pin, echo_pin) {
+    this._checkPin(trigger_pin, 'sonar');
+    this._checkPin(echo_pin, 'sonar');
+    this.sonars[name] = trigger_pin;
+    return this._rpc('set_pin_mode_sonar', [trigger_pin, echo_pin]);
+  }
+
+  attachStepper (steps_per_revolution, pins) {
+    for (var i = 0; i < pins.length; i++) {
+      this._checkPin(pins[i], 'stepper');
+    }
+
+    this.stepper_attached = true;
+    return this._rpc('set_pin_mode_stepper', [steps_per_revolution, pins]);
+  }
+
+  attachTone (name, pin) {
+    this._checkPin(pin, 'tone');
+    this.tones[name] = pin;
+    return this._rpc('set_pin_mode_tone', [pin]);
+  }
+
+  digitalWrite (name, value) {
+    let pin = this.digital_outputs[name];
+    if (typeof pin === 'undefined') {
+      throw `Digital output '${name}' is not attached`;
+    }
+    return this._rpc('digital_write', [pin, value]);
+  }
+
+  digitalRead (name) {
+    let pin = this.digital_inputs[name];
+    if (typeof pin === 'undefined') {
+      throw `Digital input '${name}' is not attached`;
+    }
+    return this._rpc('digital_read', [pin]);
+  }
+
+  analogWrite (name, value) {
+    let pin = this.pwm_outputs[name];
+    if (typeof pin === 'undefined') {
+      throw `PWM output '${name}' is not attached`;
+    }
+    let max = (1 << this.pin_capabilities[pin].pwm) - 1;
+    return this._rpc('pwm_write', [pin, Math.round(value * max)]);
+  }
+
+  analogRead (name) {
+    let pin = this.analog_inputs[name];
+    if (typeof pin === 'undefined') {
+      throw `Analog input '${name}' is not attached`;
+    }
+    let max = (1 << this.pin_capabilities[this.analog_pins[pin]].analog_input) - 1;
+    return this._rpc('analog_read', [pin]).then(x => x / max);
+  }
+
+  dhtRead (name) {
+    let pin = this.dhts[name];
+    if (typeof pin === 'undefined') {
+      throw `DHT '${name}' is not attached`;
+    }
+    return this._rpc('dht_read', [pin]);
+  }
+
+  sonarRead (name) {
+    let pin = this.sonars[name];
+    if (typeof pin === 'undefined') {
+      throw `Sonar '${name}' is not attached`;
+    }
+    return this._rpc('sonar_read', [pin]);
+  }
+
+  playTone (name, frequency, duration) {
+    let pin = this.tones[name];
+    if (typeof pin === 'undefined') {
+      throw `Tone device '${name}' is not attached`;
+    }
+    return this._rpc('play_tone', [pin, frequency, duration]);
+  }
+
+  playToneContinuously (name, frequency) {
+    let pin = this.tones[name];
+    if (typeof pin === 'undefined') {
+      throw `Tone device '${name}' is not attached`;
+    }
+    return this._rpc('play_tone_continuously', [pin, frequency]);
+  }
+
+  playToneOff (name) {
+    let pin = this.tones[name];
+    if (typeof pin === 'undefined') {
+      throw `Tone device '${name}' is not attached`;
+    }
+    return this._rpc('play_tone_off', [pin]);
+  }
+
+  servoWrite (name, position) {
+    let pin = this.servos[name]
+    if (typeof pin === 'undefined') {
+      throw `Servo '${name}' is not attached`;
+    }
+    return this._rpc('servo_write', [pin, position]);
+  }
+
+  stepperWrite (speed, steps) {
+    if (!this.stepper_attached) {
+      throw 'Stepper motor is not attached';
+    }
+    return this._rpc('stepper_write', [SPEED, STEPS]);
+  }
+}
+
+
+class ArduinoBlocks {
+  constructor (runtime) {
+    this._runtime = runtime;
+    this._runtime.registerPeripheralExtension('arduino', this);
+
+    this._arduino = new Arduino();
+
+    this._default_tempo = 60;
   }
 
   scan () {
@@ -63,7 +269,7 @@ class ArduinoBlocks {
 
   disconnect () {
     console.log('disconnect');
-    this.runtime.emit(this.runtime.constructor.PERIPHERAL_DISCONNECTED);
+    this._runtime.emit(this._runtime.constructor.PERIPHERAL_DISCONNECTED);
   }
 
   isConnected () {
@@ -539,136 +745,35 @@ class ArduinoBlocks {
     }
   }
 
-  _updateCapabilities () {
-    return Promise.all([
-      this.rpc('get_capabilities', []).then(result => {
-        this.pin_capabilities = result;
-      }),
-      this.rpc('get_analog_map', []).then(result => {
-        this.analog_pins = result;
-      })
-    ]);
-  }
-
-  rpc (method, params) {
-    const xhr = new XMLHttpRequest();
-    const url = 'http://localhost:4000';
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Accept', 'application/json');
-    let req = JSON.stringify({
-      jsonrpc: '2.0',
-      id:      1,
-      method:  method,
-      params:  params
-    });
-
-    return new Promise((resolve, reject) => {
-      xhr.onload = function (e) {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            try {
-              let resp = JSON.parse(xhr.responseText);
-              if (resp.hasOwnProperty('error')) {
-                reject(resp.error);
-                return;
-              }
-              if (!resp.hasOwnProperty('result')) {
-                reject('invalid RPC response: missing result');
-                return;
-              }
-              resolve(resp.result);
-            } catch (e) {
-              reject(`error parsing RPC response: ${e}`);
-              return;
-            }
-          }
-        }
-      };
-      xhr.send(req);
-    });
-  }
-
   attachDigitalOutput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('digital_output')) {
-      log.warn(`Pin ${PIN} does not support digital output mode`);
-      return;
-    }
-
-    this.digital_outputs[NAME] = PIN;
-    return this.rpc('set_pin_mode_digital_output', [PIN]);
+    return _do(() => this._arduino.attachDigitalOutput(NAME, PIN));
   }
 
   attachDigitalInput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('digital_input')) {
-      log.warn(`Pin ${PIN} does not support digital input mode`);
-      return;
-    }
-
-    this.digital_inputs[NAME] = PIN;
-    return this.rpc('set_pin_mode_digital_input', [PIN]);
+    return _do(() => this._arduino.attachDigitalInput(NAME, PIN));
   }
 
   attachPWMOutput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('pwm')) {
-      log.warn(`Pin ${PIN} does not support PWM mode`);
-      return;
-    }
-
-    this.pwm_outputs[NAME] = PIN;
-    return this.rpc('set_pin_mode_pwm_output', [PIN]);
+    return _do(() => this._arduino.attachPWMOutput(NAME, PIN));
   }
 
   attachAnalogInput (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.analog_pins.length) {
-      log.warn(`Pin A${PIN} does not exist`);
-      return;
-    }
-
-    this.analog_inputs[NAME] = PIN;
-    return this.rpc('set_pin_mode_analog_input', [PIN]);
+    return _do(() => this._arduino.attachAnalogInput(NAME, PIN));
   }
 
   attachDHT (args, util) {
     const NAME = args.NAME;
-    const TYPE = Number(args.TYPE);
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('dht')) {
-      log.warn(`Pin ${PIN} does not support DHT mode`);
-      return;
-    }
-
-    this.dhts[NAME] = PIN;
-    return this.rpc('set_pin_mode_dht', [PIN, TYPE]);
+    const TYPE = Number(args.TYPE);
+    return _do(() => this._arduino.attachDHT(NAME, PIN, TYPE));
   }
 
   attachServo (args, util) {
@@ -676,40 +781,14 @@ class ArduinoBlocks {
     const PIN = Number(args.PIN);
     const MIN_PULSE = Number(args.MIN_PULSE);
     const MAX_PULSE = Number(args.MAX_PULSE);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('servo')) {
-      log.warn(`Pin ${PIN} does not support servo mode`);
-      return;
-    }
-
-    this.servos[NAME] = PIN;
-    return this.rpc('set_pin_mode_servo', [PIN, MIN_PULSE, MAX_PULSE]);
+    return _do(() => this._arduino.attachServo(NAME, PIN, MIN_PULSE, MAX_PULSE));
   }
 
   attachSonar (args, util) {
     const NAME = args.NAME;
     const TRIGGER_PIN = Number(args.TRIGGER_PIN);
     const ECHO_PIN = Number(args.ECHO_PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[TRIGGER_PIN].hasOwnProperty('sonar')) {
-      log.warn(`Pin ${PIN} does not support sonar mode`);
-      return;
-    }
-    if (!this.pin_capabilities[ECHO_PIN].hasOwnProperty('sonar')) {
-      log.warn(`Pin ${PIN} does not support sonar mode`);
-      return;
-    }
-
-    this.sonars[NAME] = TRIGGER_PIN;
-    return this.rpc('set_pin_mode_sonar', [TRIGGER_PIN, ECHO_PIN]);
+    return _do(() => this._arduino.attachSonar(NAME, TRIGGER_PIN, ECHO_PIN));
   }
 
   attachStepper (args, util) {
@@ -725,244 +804,133 @@ class ArduinoBlocks {
       pins.push(PIN4);
     }
 
-    let ok = true;
-    for (var i = 0; i < pins.length; i++) {
-      let pin = pins[i];
-      if (pin < 0 || pin >= this.pin_capabilities.length) {
-        log.warn(`Pin ${pin} does not exist`);
-        ok = false;
-        continue;
-      }
-      if (!this.pin_capabilities[pin].hasOwnProperty('servo')) {
-        log.warn(`Pin ${pin} does not support servo mode`);
-        ok = false;
-        continue;
-      }
-    }
-
-    for (var i = 0; i < pins.length - 1; i++) {
-      for (var j = i + 1; j < pins.length; j++) {
-        if (pins[i] == pins[j]) {
-          log.warn('Cannot attach stepper with duplicate pins');
-          return;
-        }
-      }
-    }
-
-    if (!ok) {
-      return;
-    }
-
-    this.stepper_attached = true;
-    return this.rpc('set_pin_mode_stepper', [STEPS_PER_REVOLUTION, pins]);
+    return _do(() => this._arduino.attachStepper(STEPS_PER_REVOLUTION, pins));
   }
 
   attachTone (args, util) {
     const NAME = args.NAME;
     const PIN = Number(args.PIN);
-
-    if (PIN < 0 || PIN >= this.pin_capabilities.length) {
-      log.warn(`Pin ${PIN} does not exist`);
-      return;
-    }
-    if (!this.pin_capabilities[PIN].hasOwnProperty('tone')) {
-      log.warn(`Pin ${PIN} does not support tone mode`);
-      return;
-    }
-
-    this.tones[NAME] = PIN;
-    return this.rpc('set_pin_mode_tone', [PIN]);
+    return _do(() => this._arduino.attachTone(NAME, PIN));
   }
 
   digitalWrite (args, util) {
     const NAME = args.NAME;
-    const VALUE = Number(args.VALUE);
-    let pin = this.digital_outputs[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Digital output '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('digital_write', [pin, VALUE]);
+    const VALUE = Math.round(Number(args.VALUE));
+    return _do(() => this._arduino.digitalWrite(NAME, VALUE));
   }
 
   digitalRead (args, util) {
     const NAME = args.NAME;
     const VALUE = Number(args.VALUE);
-    let pin = this.digital_inputs[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Digital input '${NAME}' is not attached`);
-      return 0;
-    }
-    return this.rpc('digital_read', [pin]).then(x => (x == VALUE));
+    return _do(() => this._arduino.digitalRead(NAME).then(x => x == VALUE));
   }
 
   analogWrite (args, util) {
     const NAME = args.NAME;
     const VALUE = Number(args.VALUE);
-    let pin = this.pwm_outputs[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`PWM output '${NAME}' is not attached`);
-      return;
-    }
-    let max = (1 << this.pin_capabilities[pin].pwm) - 1;
-    return this.rpc('pwm_write', [pin, Math.round(VALUE * max)]);
+    return _do(() => this._arduino.analogWrite(NAME, VALUE));
   }
 
   analogRead (args, util) {
     const NAME = args.NAME;
-    let pin = this.analog_inputs[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Analog input '${NAME}' is not attached`);
-      return 0;
-    }
-    let max = (1 << this.pin_capabilities[this.analog_pins[pin]].analog_input) - 1;
-    return this.rpc('analog_read', [pin]).then(x => x / max);
+    return _do(() => this._arduino.analogRead(NAME));
   }
 
   dhtRead (args, util) {
     const NAME = args.NAME;
-    let pin = this.dhts[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`DHT '${NAME}' is not attached`);
-      return 0;
-    }
-    return this.rpc('dht_read', [pin]);
+    return _do(() => this._arduino.dhtRead(NAME));
   }
 
   dhtReadTemperature (args, util) {
-    return this.dhtRead(args, util).temperature;
+    return _do(() => this.dhtRead(args, util)).then(x => x.temperature);
   }
 
   dhtReadHumidity (args, util) {
-    return this.dhtRead(args, util).humidity;
+    return _do(() => this.dhtRead(args, util)).then(x => x.humidity);
   }
 
   sonarRead (args, util) {
     const NAME = args.NAME;
-    let pin = this.sonars[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Sonar '${NAME}' is not attached`);
-      return 0;
-    }
-    return this.rpc('sonar_read', [pin]);
+    return _do(() => this._arduino.sonarRead(NAME));
   }
 
   playTone (args, util) {
     const NAME = args.NAME;
     const FREQUENCY = Number(args.FREQUENCY);
     const DURATION = Number(args.DURATION);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    let millis = DURATION * 1000;
-    return this.rpc('play_tone', [pin, FREQUENCY, millis]).then(() => new Promise(resolve => {
+    let millis = Math.round(DURATION * 1000);
+    return _do(() => this._arduino.playTone(NAME, FREQUENCY, millis).then(() => new Promise(resolve => {
       window.setTimeout(resolve, millis);
-    }));
+    })));
   }
 
-  noteFrequency (note) {
+  _noteFrequency (note) {
     return Math.round(Math.pow(2, (note - 9) / 12) * 440);
   }
 
-  beatsToSeconds (beats) {
-    return beats * (60 / this.default_tempo);
+  _beatsToSeconds (beats) {
+    return beats * (60 / this._default_tempo);
   }
 
   playNote (args, util) {
     const NAME = args.NAME;
     const NOTE = Number(args.NOTE);
     const BEATS = Number(args.BEATS);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    let frequency = this.noteFrequency(NOTE);
-    let seconds = this.beatsToSeconds(BEATS);
+    let frequency = this._noteFrequency(NOTE);
+    let seconds = this._beatsToSeconds(BEATS);
     let millis = Math.round(1000 * seconds);
-
-    return this.rpc('play_tone', [pin, frequency, millis]).then(() => new Promise(resolve => {
+    return _do(() => this._arduino.playTone(NAME, frequency, millis).then(() => new Promise(resolve => {
       window.setTimeout(resolve, millis);
-    }));
+    })));
   }
 
   startTone (args, util) {
     const NAME = args.NAME;
     const FREQUENCY = Number(args.FREQUENCY);
     const DURATION = Number(args.DURATION);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('play_tone', [pin, FREQUENCY, DURATION * 1000]);
+    let millis = Math.round(DURATION * 1000);
+    return _do(() => this._arduino.playTone(NAME, FREQUENCY, millis));
   }
 
   startNote (args, util) {
     const NAME = args.NAME;
     const NOTE = Number(args.NOTE);
     const BEATS = Number(args.BEATS);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('play_tone', [pin, this.noteFrequency(NOTE), this.beatsDuration(BEATS)]);
+    let frequency = this._noteFrequency(NOTE);
+    let seconds = this._beatsToSeconds(BEATS);
+    let millis = Math.round(1000 * seconds);
+    return _do(() => this._arduino.playTone(NAME, frequency, millis));
   }
 
   startToneContinuously (args, util) {
     const NAME = args.NAME;
     const FREQUENCY = Number(args.FREQUENCY);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('play_tone_continuously', [pin, FREQUENCY]);
+    return _do(() => this._arduino.playToneContinuously(NAME, FREQUENCY));
   }
 
   startNoteContinuously (args, util) {
     const NAME = args.NAME;
     const NOTE = Number(args.NOTE);
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('play_tone_continuously', [pin, this.noteFrequency(NOTE)]);
+    const BEATS = Number(args.BEATS);
+    let frequency = this._noteFrequency(NOTE);
+    return _do(() => this._arduino.playToneContinuously(NAME, frequency));
   }
 
   stopTone (args, util) {
     const NAME = args.NAME;
-    let pin = this.tones[NAME];
-    if (typeof pin === 'undefined') {
-      log.warn(`Tone device '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('play_tone_off', [pin]);
+    return _do(() => this._arduino.playToneOff(NAME));
   }
 
   servoWrite (args, util) {
     const NAME = args.NAME;
     const POSITION = Number(args.POSITION);
-    let pin = this.servos[NAME]
-    if (typeof pin === 'undefined') {
-      log.warn(`Servo '${NAME}' is not attached`);
-      return;
-    }
-    return this.rpc('servo_write', [pin, POSITION]);
+    return _do(() => this._arduino.servoWrite(NAME, POSITION));
   }
 
   stepperWrite (args, util) {
-    if (!this.stepper_attached) {
-      log.warn('Stepper motor is not attached');
-      return;
-    }
     const SPEED = Number(args.SPEED);
     const STEPS = Number(args.STEPS);
-    return this.rpc('stepper_write', [SPEED, STEPS]);
+    return _do(() => this._arduino.stepperWrite(SPEED, STEPS));
   }
 
 }
