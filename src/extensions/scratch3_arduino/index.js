@@ -348,7 +348,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'digital_output',
-              defaultValue: 'output1'
+              defaultVariableName: 'output1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -363,7 +363,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'digital_output',
-              defaultValue: 'output1'
+              defaultVariableName: 'output1'
             },
             VALUE: {
               type: ArgumentType.NUMBER,
@@ -380,7 +380,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'digital_input',
-              defaultValue: 'input1'
+              defaultVariableName: 'input1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -395,7 +395,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'digital_input',
-              defaultValue: 'input1'
+              defaultVariableName: 'input1'
             },
             VALUE: {
               type: ArgumentType.NUMBER,
@@ -413,7 +413,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'pwm',
-              defaultValue: 'pwm1'
+              defaultVariableName: 'pwm1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -428,7 +428,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'pwm',
-              defaultValue: 'pwm1'
+              defaultVariableName: 'pwm1'
             },
             VALUE: {
               type: ArgumentType.NUMBER
@@ -444,7 +444,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'analog_input',
-              defaultValue: 'analog1'
+              defaultVariableName: 'analog1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -459,7 +459,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'analog_input',
-              defaultValue: 'analog1'
+              defaultVariableName: 'analog1'
             }
           },
           text: 'analog read [NAME]'
@@ -472,7 +472,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'dht',
-              defaultValue: 'dht1'
+              defaultVariableName: 'dht1'
             },
             TYPE: {
               type: ArgumentType.NUMBER,
@@ -492,7 +492,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'dht',
-              defaultValue: 'dht1'
+              defaultVariableName: 'dht1'
             }
           },
           text: 'temperature from [NAME]'
@@ -504,7 +504,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'dht',
-              defaultValue: 'dht1'
+              defaultVariableName: 'dht1'
             }
           },
           text: 'humidity from [NAME]'
@@ -517,7 +517,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'sonar',
-              defaultValue: 'sonar1'
+              defaultVariableName: 'sonar1'
             },
             TRIGGER_PIN: {
               type: ArgumentType.NUMBER
@@ -536,7 +536,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'sonar',
-              defaultValue: 'sonar1'
+              defaultVariableName: 'sonar1'
             }
           },
           text: 'sonar [NAME] distance'
@@ -549,7 +549,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -564,7 +564,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -584,7 +584,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -603,7 +603,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -623,7 +623,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -642,7 +642,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -658,7 +658,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -673,7 +673,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'tone',
-              defaultValue: 'tone1'
+              defaultVariableName: 'tone1'
             }
           },
           text: 'stop tone [NAME]'
@@ -686,7 +686,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'servo',
-              defaultValue: 'servo1'
+              defaultVariableName: 'servo1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -709,7 +709,7 @@ class ArduinoBlocks {
             NAME: {
               type: ArgumentType.VARIABLE,
               variableType: 'servo',
-              defaultValue: 'servo1'
+              defaultVariableName: 'servo1'
             },
             POSITION: {
               type: ArgumentType.ANGLE

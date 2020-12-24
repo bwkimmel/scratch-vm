@@ -1269,15 +1269,16 @@ class Runtime extends EventEmitter {
         };
     }
 
-    _constructVariableJson (context, argInfo) {
+    _constructVariableJson (context, argInfo, placeholder) {
         let varTypes;
         if (argInfo.variableType) {
           varTypes = [`${context.extensionInfo.id}_${argInfo.variableType}`];
         }
         return {
             type: 'field_variable',
+            name: placeholder,
             variableTypes: varTypes,
-            variable: argInfo.defaultValue
+            variable: argInfo.defaultVariableName
         };
     }
 
@@ -1312,7 +1313,7 @@ class Runtime extends EventEmitter {
         if (argTypeInfo.fieldType === 'field_image') {
             argJSON = this._constructInlineImageJson(argInfo);
         } else if (argTypeInfo.fieldType === 'field_variable') {
-            argJSON = this._constructVariableJson(context, argInfo);
+            argJSON = this._constructVariableJson(context, argInfo, placeholder);
         } else {
             // Construct input value
 
