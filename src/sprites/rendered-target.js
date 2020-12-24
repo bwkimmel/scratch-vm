@@ -1087,7 +1087,8 @@ class RenderedTarget extends Target {
             tempo: this.tempo,
             volume: this.volume,
             videoTransparency: this.videoTransparency,
-            videoState: this.videoState
+            videoState: this.videoState,
+            arduinoLabels: this.arduinoLabels
 
         };
     }

@@ -22,7 +22,10 @@ class Arduino extends JSONRPC {
     super();
 
     this._runtime = runtime;
+    this._reset_indices();
+  }
 
+  _reset_indices () {
     this.digital_outputs = {};
     this.digital_inputs = {};
     this.pwm_outputs = {};
@@ -31,7 +34,6 @@ class Arduino extends JSONRPC {
     this.servos = {};
     this.sonars = {};
     this.tones = {};
-
     this.stepper_attached = false;
   }
 
@@ -48,6 +50,11 @@ class Arduino extends JSONRPC {
 
   disconnect () {
     return this.sendRemoteRequest('disconnect', []);
+  }
+
+  reset () {
+    this._reset_indices();
+    return this.sendRemoteRequest('reset', []);
   }
 
   didReceiveCall (method, params) {
@@ -249,9 +256,19 @@ class ArduinoBlocks {
   constructor (runtime) {
     this._runtime = runtime;
     this._runtime.registerPeripheralExtension('arduino', this);
+    this._runtime.on(runtime.constructor.PROJECT_LOADED, this._onProjectLoaded.bind(this));
 
     this._arduino_ = null;
     this._connected = false;
+
+    this.labelDigitalOutputs = this._labels.bind(this, 'digital output', () => this._state.digitalOutputs);
+    this.labelDigitalInputs = this._labels.bind(this, 'digital input', () => this._state.digitalInputs);
+    this.labelPWMOutputs = this._labels.bind(this, 'PWM output', () => this._state.pwmOutputs);
+    this.labelAnalogInputs = this._labels.bind(this, 'analog input', () => this._state.analogInputs);
+    this.labelDHTs = this._labels.bind(this, 'DHT', () => this._state.dhts);
+    this.labelSonars = this._labels.bind(this, 'sonar', () => this._state.sonars);
+    this.labelServos = this._labels.bind(this, 'servo', () => this._state.servos);
+    this.labelTones = this._labels.bind(this, 'tone', () => this._state.tones);
   }
 
   get _arduino () {
@@ -283,6 +300,10 @@ class ArduinoBlocks {
         extensionId: 'arduino'
       });
     });
+  }
+
+  reset () {
+    return _do(() => this._arduino.reset()).then(() => {});
   }
 
   connect (id) {
@@ -338,17 +359,31 @@ class ArduinoBlocks {
           {'value': 21, 'text': 'DHT21'},
           {'value': 22, 'text': 'DHT22'},
           {'value': 2301, 'text': 'AM2301'}
-        ]
+        ],
+        labelDigitalOutputs: 'labelDigitalOutputs',
+        labelDigitalInputs: 'labelDigitalInputs',
+        labelPWMOutputs: 'labelPWMOutputs',
+        labelAnalogInputs: 'labelAnalogInputs',
+        labelDHTs: 'labelDHTs',
+        labelSonars: 'labelSonars',
+        labelServos: 'labelServos',
+        labelTones: 'labelTones'
       },
       blocks: [
+        {
+          opcode: 'reset',
+          blockType: BlockType.COMMAND,
+          text: 'reset'
+        },
+        '---',
         {
           opcode: 'attachDigitalOutput',
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'digital_output',
-              defaultVariableName: 'output1'
+              type: ArgumentType.STRING,
+              menu: 'labelDigitalOutputs',
+              defaultValue: 'output1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -361,9 +396,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'digital_output',
-              defaultVariableName: 'output1'
+              type: ArgumentType.STRING,
+              menu: 'labelDigitalOutputs',
+              defaultValue: 'output1'
             },
             VALUE: {
               type: ArgumentType.NUMBER,
@@ -378,9 +413,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'digital_input',
-              defaultVariableName: 'input1'
+              type: ArgumentType.STRING,
+              menu: 'labelDigitalInputs',
+              defaultValue: 'input1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -393,9 +428,9 @@ class ArduinoBlocks {
           blockType: BlockType.BOOLEAN,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'digital_input',
-              defaultVariableName: 'input1'
+              type: ArgumentType.STRING,
+              menu: 'labelDigitalInputs',
+              defaultValue: 'input1'
             },
             VALUE: {
               type: ArgumentType.NUMBER,
@@ -411,9 +446,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'pwm',
-              defaultVariableName: 'pwm1'
+              type: ArgumentType.STRING,
+              menu: 'labelPWMOutputs',
+              defaultValue: 'pwm1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -426,9 +461,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'pwm',
-              defaultVariableName: 'pwm1'
+              type: ArgumentType.STRING,
+              menu: 'labelPWMOutputs',
+              defaultValue: 'pwm1'
             },
             VALUE: {
               type: ArgumentType.NUMBER
@@ -442,9 +477,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'analog_input',
-              defaultVariableName: 'analog1'
+              type: ArgumentType.STRING,
+              menu: 'labelAnalogInputs',
+              defaultValue: 'analog1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -457,9 +492,9 @@ class ArduinoBlocks {
           blockType: BlockType.REPORTER,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'analog_input',
-              defaultVariableName: 'analog1'
+              type: ArgumentType.STRING,
+              menu: 'labelAnalogInputs',
+              defaultValue: 'analog1'
             }
           },
           text: 'analog read [NAME]'
@@ -470,9 +505,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'dht',
-              defaultVariableName: 'dht1'
+              type: ArgumentType.STRING,
+              menu: 'labelDHTs',
+              defaultValue: 'dht1'
             },
             TYPE: {
               type: ArgumentType.NUMBER,
@@ -490,9 +525,9 @@ class ArduinoBlocks {
           blockType: BlockType.REPORTER,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'dht',
-              defaultVariableName: 'dht1'
+              type: ArgumentType.STRING,
+              menu: 'labelDHTs',
+              defaultValue: 'dht1'
             }
           },
           text: 'temperature from [NAME]'
@@ -502,9 +537,9 @@ class ArduinoBlocks {
           blockType: BlockType.REPORTER,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'dht',
-              defaultVariableName: 'dht1'
+              type: ArgumentType.STRING,
+              menu: 'labelDHTs',
+              defaultValue: 'dht1'
             }
           },
           text: 'humidity from [NAME]'
@@ -515,9 +550,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'sonar',
-              defaultVariableName: 'sonar1'
+              type: ArgumentType.STRING,
+              menu: 'labelSonars',
+              defaultValue: 'sonar1'
             },
             TRIGGER_PIN: {
               type: ArgumentType.NUMBER
@@ -534,9 +569,9 @@ class ArduinoBlocks {
           blockType: BlockType.REPORTER,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'sonar',
-              defaultVariableName: 'sonar1'
+              type: ArgumentType.STRING,
+              menu: 'labelSonars',
+              defaultValue: 'sonar1'
             }
           },
           text: 'sonar [NAME] distance'
@@ -547,9 +582,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -562,9 +597,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -582,9 +617,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -601,9 +636,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -621,9 +656,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -640,9 +675,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             FREQUENCY: {
               type: ArgumentType.NUMBER,
@@ -656,9 +691,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             },
             NOTE: {
               type: ArgumentType.NOTE
@@ -671,9 +706,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'tone',
-              defaultVariableName: 'tone1'
+              type: ArgumentType.STRING,
+              menu: 'labelTones',
+              defaultValue: 'tone1'
             }
           },
           text: 'stop tone [NAME]'
@@ -684,9 +719,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'servo',
-              defaultVariableName: 'servo1'
+              type: ArgumentType.STRING,
+              menu: 'labelServos',
+              defaultValue: 'servo1'
             },
             PIN: {
               type: ArgumentType.NUMBER
@@ -707,9 +742,9 @@ class ArduinoBlocks {
           blockType: BlockType.COMMAND,
           arguments: {
             NAME: {
-              type: ArgumentType.VARIABLE,
-              variableType: 'servo',
-              defaultVariableName: 'servo1'
+              type: ArgumentType.STRING,
+              menu: 'labelServos',
+              defaultValue: 'servo1'
             },
             POSITION: {
               type: ArgumentType.ANGLE
@@ -781,6 +816,56 @@ class ArduinoBlocks {
         }
       ]
     }
+  }
+
+  _onProjectLoaded () {
+    return this.reset();
+  }
+
+  get DEFAULT_LABELS () {
+    return {
+      digitalOutputs: ['output1'],
+      digitalInputs: ['input1'],
+      pwmOutputs: ['pwm1'],
+      analogInputs: ['analog1'],
+      dhts: ['dht1'],
+      sonars: ['sonar1'],
+      servos: ['servo1'],
+      tones: ['tone1']
+    };
+  }
+
+  get _state () {
+    const stage = this._runtime.getTargetForStage();
+    if (!stage) return this.DEFAULT_LABELS;
+    if (!stage.hasOwnProperty('arduinoLabels')) {
+      stage.arduinoLabels = this.DEFAULT_LABELS;
+    }
+    return stage.arduinoLabels;
+  }
+
+  _newLabel (typeName, getList) {
+    console.log(this._runtime);
+    const name = prompt(`Enter a name for the new ${typeName}`);
+    if (!name) {
+      return;
+    }
+    var list = getList()
+    if (list.includes(name)) {
+      alert(`The ${typeName} '${name}' already exists`);
+      return;
+    }
+    list.push(name);
+    list.sort();
+  }
+
+  _labels (typeName, getList) {
+    var menuItems = getList().slice();
+    menuItems.unshift({
+      text: `New ${typeName}`,
+      value: this._newLabel.bind(this, typeName, getList)
+    });
+    return menuItems;
   }
 
   attachDigitalOutput (args, util) {
