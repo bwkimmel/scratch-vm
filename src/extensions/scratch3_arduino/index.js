@@ -853,10 +853,11 @@ class ArduinoBlocks {
     var list = getList()
     if (list.includes(name)) {
       alert(`The ${typeName} '${name}' already exists`);
-      return;
+      return name;
     }
     list.push(name);
     list.sort();
+    return name;
   }
 
   _labels (typeName, getList) {
