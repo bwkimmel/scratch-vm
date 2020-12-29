@@ -875,56 +875,56 @@ class ArduinoBlocks {
 
   attachDigitalOutput (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
     return _do(() => this._arduino.attachDigitalOutput(NAME, PIN));
   }
 
   attachDigitalInput (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
     return _do(() => this._arduino.attachDigitalInput(NAME, PIN));
   }
 
   attachPWMOutput (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
     return _do(() => this._arduino.attachPWMOutput(NAME, PIN));
   }
 
   attachAnalogInput (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
     return _do(() => this._arduino.attachAnalogInput(NAME, PIN));
   }
 
   attachDHT (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
-    const TYPE = Cast.toNumber(args.TYPE);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
+    const TYPE = Math.round(Cast.toNumber(args.TYPE));
     return _do(() => this._arduino.attachDHT(NAME, PIN, TYPE));
   }
 
   attachServo (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
-    const MIN_PULSE = Cast.toNumber(args.MIN_PULSE);
-    const MAX_PULSE = Cast.toNumber(args.MAX_PULSE);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
+    const MIN_PULSE = Math.round(Cast.toNumber(args.MIN_PULSE));
+    const MAX_PULSE = Math.round(Cast.toNumber(args.MAX_PULSE));
     return _do(() => this._arduino.attachServo(NAME, PIN, MIN_PULSE, MAX_PULSE));
   }
 
   attachSonar (args, util) {
     const NAME = args.NAME;
-    const TRIGGER_PIN = Cast.toNumber(args.TRIGGER_PIN);
-    const ECHO_PIN = Cast.toNumber(args.ECHO_PIN);
+    const TRIGGER_PIN = Math.round(Cast.toNumber(args.TRIGGER_PIN));
+    const ECHO_PIN = Math.round(Cast.toNumber(args.ECHO_PIN));
     return _do(() => this._arduino.attachSonar(NAME, TRIGGER_PIN, ECHO_PIN));
   }
 
   attachStepper (args, util) {
-    const STEPS_PER_REVOLUTION = Cast.toNumber(args.STEPS_PER_REVOLUTION);
-    const PIN1 = Cast.toNumber(args.PIN1);
-    const PIN2 = Cast.toNumber(args.PIN2);
-    const PIN3 = args.hasOwnProperty('PIN3') ? Cast.toNumber(args.PIN3) : undefined;
-    const PIN4 = args.hasOwnProperty('PIN4') ? Cast.toNumber(args.PIN4) : undefined;
+    const STEPS_PER_REVOLUTION = Math.round(Cast.toNumber(args.STEPS_PER_REVOLUTION));
+    const PIN1 = Math.round(Cast.toNumber(args.PIN1));
+    const PIN2 = Math.round(Cast.toNumber(args.PIN2));
+    const PIN3 = args.hasOwnProperty('PIN3') ? Math.round(Cast.toNumber(args.PIN3)) : undefined;
+    const PIN4 = args.hasOwnProperty('PIN4') ? Math.round(Cast.toNumber(args.PIN4)) : undefined;
 
     let pins = [PIN1, PIN2];
     if (typeof PIN3 !== 'undefined' && typeof PIN4 !== 'undefined') {
@@ -937,7 +937,7 @@ class ArduinoBlocks {
 
   attachTone (args, util) {
     const NAME = args.NAME;
-    const PIN = Cast.toNumber(args.PIN);
+    const PIN = Math.round(Cast.toNumber(args.PIN));
     return _do(() => this._arduino.attachTone(NAME, PIN));
   }
 
@@ -949,7 +949,7 @@ class ArduinoBlocks {
 
   digitalRead (args, util) {
     const NAME = args.NAME;
-    const VALUE = Cast.toNumber(args.VALUE);
+    const VALUE = Math.round(Cast.toNumber(args.VALUE));
     return _do(() => this._arduino.digitalRead(NAME).then(x => x == VALUE));
   }
 
@@ -984,7 +984,7 @@ class ArduinoBlocks {
 
   playTone (args, util) {
     const NAME = args.NAME;
-    const FREQUENCY = Cast.toNumber(args.FREQUENCY);
+    const FREQUENCY = Math.round(Cast.toNumber(args.FREQUENCY));
     const DURATION = Cast.toNumber(args.DURATION);
     let millis = Math.round(DURATION * 1000);
     return _do(() => this._arduino.playTone(NAME, FREQUENCY, millis).then(() => new Promise(resolve => {
@@ -1019,7 +1019,7 @@ class ArduinoBlocks {
 
   startTone (args, util) {
     const NAME = args.NAME;
-    const FREQUENCY = Cast.toNumber(args.FREQUENCY);
+    const FREQUENCY = Math.round(Cast.toNumber(args.FREQUENCY));
     const DURATION = Cast.toNumber(args.DURATION);
     let millis = Math.round(DURATION * 1000);
     return _do(() => this._arduino.playTone(NAME, FREQUENCY, millis));
@@ -1037,7 +1037,7 @@ class ArduinoBlocks {
 
   startToneContinuously (args, util) {
     const NAME = args.NAME;
-    const FREQUENCY = Cast.toNumber(args.FREQUENCY);
+    const FREQUENCY = Math.round(Cast.toNumber(args.FREQUENCY));
     return _do(() => this._arduino.playToneContinuously(NAME, FREQUENCY));
   }
 
@@ -1056,13 +1056,13 @@ class ArduinoBlocks {
 
   servoWrite (args, util) {
     const NAME = args.NAME;
-    const POSITION = Cast.toNumber(args.POSITION);
+    const POSITION = Math.round(Cast.toNumber(args.POSITION));
     return _do(() => this._arduino.servoWrite(NAME, POSITION));
   }
 
   stepperWrite (args, util) {
-    const SPEED = Cast.toNumber(args.SPEED);
-    const STEPS = Cast.toNumber(args.STEPS);
+    const SPEED = Math.round(Cast.toNumber(args.SPEED));
+    const STEPS = Math.round(Cast.toNumber(args.STEPS));
     return _do(() => this._arduino.stepperWrite(SPEED, STEPS));
   }
 
