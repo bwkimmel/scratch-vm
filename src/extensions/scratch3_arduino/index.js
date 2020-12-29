@@ -16,6 +16,10 @@ function _do (f) {
   return Promise.resolve().then(f).catch(e => { log.warn(e); });
 }
 
+function _clamp (x, min, max) {
+  return Math.min(Math.max(x, min), max);
+}
+
 
 class Arduino extends JSONRPC {
   constructor (runtime) {
@@ -951,7 +955,7 @@ class ArduinoBlocks {
 
   analogWrite (args, util) {
     const NAME = args.NAME;
-    const VALUE = Cast.toNumber(args.VALUE);
+    const VALUE = _clamp(Cast.toNumber(args.VALUE), 0.0, 1.0);
     return _do(() => this._arduino.analogWrite(NAME, VALUE));
   }
 
