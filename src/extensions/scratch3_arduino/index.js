@@ -247,7 +247,7 @@ class Arduino extends JSONRPC {
     if (!this.stepper_attached) {
       throw 'Stepper motor is not attached';
     }
-    return this.sendRemoteRequest('stepper_write', [SPEED, STEPS]).then(() => {});
+    return this.sendRemoteRequest('stepper_write', [speed, steps]).then(() => {});
   }
 }
 
